@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>全市场财报仪表盘 · Market Earnings Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.47.0/iconfont/tabler-icons.min.css">
+<style>
+:root{
+  --bg:#fff;--bg2:#f7f6f3;--bg3:#efece6;
+  --tx:#1a1a18;--tx2:#65645f;--tx3:#9b9a93;
+  --bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.18);
+  --up:#1d9e75;--upbg:#e1f5ee;--dn:#e24b4a;--dnbg:#fcebeb;
+  --warn:#854f0b;--warnbg:#faeeda;--info:#185fa5;--infobg:#e6f1fb;
+  --rad:8px;--rad2:12px;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#1f1e1c;--bg2:#2a2826;--bg3:#34322f;
+    --tx:#f0efe9;--tx2:#a8a69e;--tx3:#74726b;
+    --bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);
+    --up:#5dcaa5;--upbg:#0f3a2e;--dn:#f09595;--dnbg:#3a1818;
+    --warn:#fac775;--warnbg:#3a2c12;--info:#85b7eb;--infobg:#10243a;}
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--tx);line-height:1.6;
+  padding:env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 24px);max-width:920px;margin:0 auto}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 0 10px;gap:10px}
+.htitle{font-size:19px;font-weight:600}
+.hsub{font-size:11px;color:var(--tx3);margin-top:2px}
+.hdr-actions{display:flex;gap:8px;flex-shrink:0}
+.iconbtn{padding:7px 10px;border-radius:var(--rad);border:.5px solid var(--bd2);background:transparent;cursor:pointer;color:var(--tx2);font-size:13px;display:flex;align-items:center;gap:4px}
+.iconbtn:active{transform:scale(.95)}
+.lvbar{display:flex;align-items:center;gap:6px;margin-bottom:12px;padding:9px 12px;background:var(--bg2);border-radius:var(--rad);flex-wrap:wrap}
+.lvlabel{font-size:11px;color:var(--tx3)}
+.lvbtn{padding:4px 14px;border-radius:20px;border:.5px solid var(--bd2);font-size:12px;cursor:pointer;background:transparent;color:var(--tx2)}
+.lvbtn.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+.lvhint{font-size:11px;color:var(--tx3);margin-left:2px}
+.lvnew{font-size:11px;color:var(--up);margin-left:auto}
+.stabs{display:flex;gap:4px;flex-wrap:wrap;padding-bottom:10px;border-bottom:.5px solid var(--bd);margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stab{padding:6px 12px;border-radius:var(--rad);border:none;font-size:13px;cursor:pointer;background:transparent;color:var(--tx2);display:flex;align-items:center;gap:5px;white-space:nowrap}
+.stab.on{background:var(--bg2);color:var(--tx);font-weight:600}
+.stab-logo{width:15px;height:15px;border-radius:3px;object-fit:contain;background:#fff;flex-shrink:0}
+.statusbar{font-size:11px;color:var(--tx3);margin-bottom:12px;display:flex;align-items:center;gap:6px;line-height:1.5}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--tx3);flex-shrink:0}
+.ldot.on{background:var(--up);animation:blink 1.6s infinite}
+.ldot.err{background:var(--dn)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.searchrow{display:flex;gap:8px;margin-bottom:14px}
+.searchrow input{flex:1;padding:9px 12px;border-radius:var(--rad);border:.5px solid var(--bd2);background:var(--bg2);color:var(--tx);font-size:14px}
+.searchrow button{padding:9px 16px;border-radius:var(--rad);border:none;background:var(--tx);color:var(--bg);font-size:14px;font-weight:600;cursor:pointer}
+.cogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px;margin-bottom:18px}
+.cocard{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rad2);padding:12px;position:relative}
+.fav{position:absolute;top:10px;right:10px;font-size:16px;color:var(--tx3);cursor:pointer;line-height:1}
+.fav.on{color:#EF9F27}
+.cohead{display:flex;align-items:center;gap:8px;margin-bottom:9px;padding-right:22px}
+.logobox{position:relative;width:30px;height:30px;border-radius:7px;flex-shrink:0;overflow:hidden}
+.logobg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;border-radius:7px}
+.logoimg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;padding:2px;border-radius:7px}
+.conm{font-size:13px;font-weight:600;line-height:1.2}
+.cotk{font-size:10px;color:var(--tx3)}
+.prrow{display:flex;align-items:baseline;gap:6px;margin-bottom:8px;min-height:24px}
+.coprice{font-size:19px;font-weight:600}
+.coprice.ph{font-size:12px;color:var(--tx3);font-weight:400}
+.badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+.up{background:var(--upbg);color:var(--up)}.dn{background:var(--dnbg);color:var(--dn)}.neu{background:var(--bg3);color:var(--tx2)}
+.skel{display:inline-block;width:54px;height:16px;border-radius:4px;background:var(--bg3);animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.row{display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);border-top:.5px solid var(--bd);padding:5px 0}
+.rv{font-weight:600;color:var(--tx);font-size:11px}
+.upt{color:var(--up)}.dnt{color:var(--dn)}
+.sl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin:16px 0 7px;font-weight:600}
+.mcg{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:14px}
+.mc{background:var(--bg2);border-radius:var(--rad);padding:10px 12px}
+.mcl{font-size:10px;color:var(--tx2);margin-bottom:3px}
+.mcv{font-size:16px;font-weight:600}
+.cw{position:relative;width:100%}
+.sovgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.sovcard{border:.5px solid var(--bd);border-radius:var(--rad2);padding:12px;cursor:pointer}
+.sovcard:active{transform:scale(.98)}
+.sovhead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sovico{width:28px;height:28px;border-radius:var(--rad);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sovname{font-size:13px;font-weight:600}
+.sovperf{font-size:12px;font-weight:600}
+.sovrating{font-size:10px;padding:2px 7px;border-radius:20px;display:inline-block;margin-bottom:5px}
+.sovdesc{font-size:11px;color:var(--tx2);line-height:1.6}
+.ins{border:.5px solid var(--bd);border-radius:var(--rad2);padding:13px;margin-bottom:9px}
+.insh{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.insico{width:28px;height:28px;border-radius:var(--rad);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.institle{font-size:13px;font-weight:600}
+.insbody{font-size:12px;color:var(--tx2);line-height:1.75}
+.tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;margin:3px 3px 0 0}
+.leg{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:7px;font-size:11px;color:var(--tx2)}
+.leg span{display:flex;align-items:center;gap:4px}
+.ld{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.newscard{border:.5px solid var(--bd);border-radius:var(--rad2);padding:12px;margin-bottom:8px}
+.newshead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:5px}
+.newstitle{font-size:12px;font-weight:600;line-height:1.5;flex:1}
+.newstitle a{color:var(--tx);text-decoration:none}
+.newstitle a:active{opacity:.6}
+.newsimpact{font-size:11px;color:var(--tx2);line-height:1.6;margin-top:5px;padding-top:6px;border-top:.5px solid var(--bd)}
+.newsinfo{font-size:11px;color:var(--tx2);padding:11px 13px;background:var(--bg2);border-radius:var(--rad);line-height:1.6}
+.glossgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:9px;margin-bottom:14px}
+.glossterm{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rad2);padding:12px}
+.glossname{font-size:13px;font-weight:600;margin-bottom:5px;display:flex;gap:5px;flex-wrap:wrap;align-items:baseline}
+.glossen{font-size:10px;color:var(--tx3);font-weight:400}
+.glossdef{font-size:11px;color:var(--tx2);line-height:1.65}
+.glossex{font-size:10px;color:var(--up);margin-top:5px;padding-top:5px;border-top:.5px solid var(--bd)}
+.matrx{overflow-x:auto;margin-bottom:14px}
+.matrx table{width:100%;border-collapse:collapse;font-size:11px;min-width:380px}
+.matrx th{padding:7px 8px;text-align:center;font-size:10px;color:var(--tx3);font-weight:400;border-bottom:.5px solid var(--bd)}
+.matrx th:first-child{text-align:left}
+.matrx td{padding:6px 8px;text-align:center;border-bottom:.5px solid var(--bd)}
+.matrx td:first-child{text-align:left;font-weight:600}
+.note{font-size:10px;color:var(--tx3);margin-top:7px;line-height:1.5}
+.empty{font-size:13px;color:var(--tx3);padding:24px;text-align:center}
+.fade{animation:fin .25s ease}
+@keyframes fin{from{opacity:.5}to{opacity:1}}
+.keybar{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:.5px solid var(--bd2);padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;gap:8px;z-index:50;max-width:920px;margin:0 auto}
+.keybar input{flex:1;padding:9px 12px;border-radius:var(--rad);border:.5px solid var(--bd2);background:var(--bg2);color:var(--tx);font-size:14px}
+.keybar button{padding:9px 16px;border-radius:var(--rad);border:none;background:var(--tx);color:var(--bg);font-size:14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div><div class="htitle" id="hTitle"></div><div class="hsub" id="hSub"></div></div>
+  <div class="hdr-actions">
+    <button class="iconbtn" id="langBtn">EN</button>
+    <button class="iconbtn" id="refreshBtn"><i class="ti ti-refresh"></i></button>
+  </div>
+</div>
+
+<div class="lvbar">
+  <span class="lvlabel" id="lvLabel"></span>
+  <button class="lvbtn on" data-lv="0"></button>
+  <button class="lvbtn" data-lv="1"></button>
+  <button class="lvbtn" data-lv="2"></button>
+  <span class="lvhint" id="lvhint"></span>
+  <span class="lvnew" id="lvnew" style="display:none"></span>
+</div>
+
+<div class="stabs" id="stabs"></div>
+<div class="statusbar"><span class="ldot" id="ldot"></span><span id="stxt"></span></div>
+<div id="mc" class="fade"></div>
+
+<div class="keybar">
+  <input id="keyInput" autocomplete="off">
+  <button id="keySave"></button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const FH='https://finnhub.io/api/v1';
+let KEY=localStorage.getItem('fh_key')||'';
+let LANG=localStorage.getItem('lang')||'zh';
+let WATCH=JSON.parse(localStorage.getItem('watch')||'[]');
+let LV=0,SEC='overview',LIVE={},chartInst=[];
+
+const T=o=>typeof o==='string'?o:(o?(o[LANG]??o.zh):'');
+
+const UI={
+  title:{zh:'全市场财报仪表盘',en:'Market Earnings Dashboard'},
+  sub:{zh:'实时行情 · 六大行业 · 自适应学习',en:'Live quotes · 6 sectors · adaptive learning'},
+  lvLabel:{zh:'学习阶段：',en:'Level:'},
+  lv:[{zh:'入门',en:'Beginner'},{zh:'进阶',en:'Intermediate'},{zh:'专业',en:'Pro'}],
+  lvHint:[{zh:'看懂营收和利润，建立第一印象',en:'Grasp revenue & profit — the first picture'},{zh:'理解估值、增速、行业对比',en:'Understand valuation, growth, peer comparison'},{zh:'深挖利润质量与宏观逻辑',en:'Dig into profit quality & macro logic'}],
+  lvNew:['',{zh:'解锁：市盈率 / 同比增速 / 评级',en:'Unlocked: P/E · YoY growth · rating'},{zh:'解锁：EV/EBITDA / 利润率 / 宏观',en:'Unlocked: EV/EBITDA · margins · macro'}],
+  keyPh:{zh:'粘贴 Finnhub API Key 启用实时数据',en:'Paste Finnhub API key to enable live data'},
+  keySaved:{zh:'已保存（点这里可更换）',en:'Saved (tap to change)'},
+  keyEnable:{zh:'启用',en:'Enable'},
+  demoMode:{zh:'演示模式 · 在底部填入免费 Finnhub Key 即可启用实时股价/新闻',en:'Demo mode · paste a free Finnhub key below to enable live data'},
+  liveOn:{zh:'已启用实时数据 · 点击任意板块查看',en:'Live data enabled · open any sector'},
+  searchPh:{zh:'输入代码或公司名搜索（如 AAPL、Tesla）',en:'Search ticker or name (e.g. AAPL, Tesla)'},
+  searchBtn:{zh:'搜索',en:'Search'},
+  needKey:{zh:'请先在底部填入 Finnhub Key',en:'Enter a Finnhub key below first'},
+  searchHint:{zh:'搜索任意美股，加 ★ 收藏到自选',en:'Search any US stock, tap ★ to add to watchlist'},
+  noResult:{zh:'没有找到结果，换个关键词试试',en:'No results — try another keyword'},
+  watchEmpty:{zh:'还没有自选股。去「搜索」里加 ★ 收藏吧',en:'No favorites yet. Add some with ★ from Search'},
+  secOv:{zh:'板块总览 · 点击进入详情',en:'Sector overview · tap to open'},
+  companyDetail:{zh:'公司详情（股价/利润率实时）',en:'Companies (live price & margin)'},
+  revVsNi:{zh:'营收 vs 净利润',en:'Revenue vs net income'},
+  revOnly:{zh:'季度营收（亿美元）',en:'Quarterly revenue ($100M)'},
+  netMargin:{zh:'净利润率（%）',en:'Net margin (%)'},
+  deepRead:{zh:'深度解读',en:'In-depth analysis'},
+  liveNews:{zh:'实时资讯 · 影响分析',en:'Live news · impact'},
+  macroTitle:{zh:'宏观敏感度矩阵',en:'Macro sensitivity matrix'},
+  glossBasic:{zh:'基础指标',en:'Basics'},
+  glossVal:{zh:'估值指标',en:'Valuation'},
+  glossMkt:{zh:'市场与宏观',en:'Market & macro'},
+  mLabelSec:{zh:'板块',en:'Sector'},mLabelMg:{zh:'平均利润率',en:'Avg margin'},mLabelPE:{zh:'平均PE',en:'Avg P/E'},mLabelN:{zh:'公司数',en:'Companies'},
+  rev:{zh:'季度营收',en:'Revenue'},nm:{zh:'净利润率',en:'Net margin'},yoy:{zh:'同比增速',en:'YoY growth'},pe:{zh:'市盈率',en:'P/E'},rating:{zh:'评级',en:'Rating'},evb:{zh:'EV/EBITDA',en:'EV/EBITDA'},cap:{zh:'市值',en:'Mkt cap'},macroKw:{zh:'宏观关键词',en:'Macro tag'},
+  liveTag:{zh:'·实时',en:'·live'},lossTag:{zh:'亏损中',en:'Loss'},fillKey:{zh:'填Key看实时',en:'Key→live'},
+  loadingNews:{zh:'正在加载新闻...',en:'Loading news...'},newsNeedKey:{zh:'填入 Finnhub Key 后显示实时新闻',en:'Live news shows after a key is set'},
+  ratingMap:{'买入':{zh:'买入',en:'Buy'},'强烈买入':{zh:'强烈买入',en:'Strong Buy'},'持有':{zh:'持有',en:'Hold'}},
+  noteOv:{zh:'板块 YTD 为示例参考值（行业整体表现，非实时）· 进入板块后个股股价与财报指标为实时',en:'Sector YTD figures are illustrative; per-stock price & metrics inside are live'},
+  noteSec:{zh:'股价/市值/利润率/Logo/新闻为 Finnhub 实时 · 季度营收/EV-EBITDA/评级为示例参考值',en:'Price/cap/margin/logo/news are live via Finnhub; revenue/EV-EBITDA/rating are illustrative'},
+  statusLoading:{zh:'正在拉取实时数据...',en:'Fetching live data...'},
+  impactPos:{zh:'偏正面',en:'Positive'},impactNeg:{zh:'偏负面',en:'Negative'},impactDeal:{zh:'并购/合作',en:'M&A/Deal'},impactReg:{zh:'监管/法律',en:'Regulatory'},impactNeu:{zh:'待判断',en:'Neutral'},
+};
+
+const SMETA={
+  overview:{n:{zh:'全市场',en:'Overview'},i:'ti-world',c:'#888780',logo:null},
+  tech:{n:{zh:'科技',en:'Tech'},i:'ti-cpu',c:'#378ADD',logo:'NVDA'},
+  finance:{n:{zh:'金融',en:'Finance'},i:'ti-building-bank',c:'#1D9E75',logo:'V'},
+  energy:{n:{zh:'能源',en:'Energy'},i:'ti-flame',c:'#EF9F27',logo:'XOM'},
+  health:{n:{zh:'医疗',en:'Health'},i:'ti-heartbeat',c:'#D4537E',logo:'ABBV'},
+  consumer:{n:{zh:'消费',en:'Consumer'},i:'ti-shopping-cart',c:'#533AB7',logo:'WMT'},
+  industrial:{n:{zh:'工业',en:'Industrial'},i:'ti-building-factory-2',c:'#5F5E5A',logo:'GE'},
+  search:{n:{zh:'搜索',en:'Search'},i:'ti-search',c:'#888780',logo:null},
+  watch:{n:{zh:'自选',en:'Watchlist'},i:'ti-star',c:'#EF9F27',logo:null},
+  glossary:{n:{zh:'词典',en:'Glossary'},i:'ti-book',c:'#888780',logo:null},
+};
+
+const SOVDATA=[
+  {s:'tech',p:'+23%',d:1,r:{zh:'强势',en:'Strong'},bg:'#E6F1FB',bc:'#185FA5',d0:{zh:'卖软件和芯片，AI是今年主角',en:'Software & chips — AI is the lead story'},d1:{zh:'AI算力需求爆发，英伟达带动全板块',en:'AI compute demand booms, led by Nvidia'},d2:{zh:'PE均值偏高，AI渗透率仍处早期，长期逻辑成立但短期估值有压力',en:'Rich avg P/E; AI adoption early — strong long-term but near-term valuation risk'}},
+  {s:'finance',p:'+12%',d:1,r:{zh:'稳健',en:'Steady'},bg:'#E1F5EE',bc:'#0F6E56',d0:{zh:'管钱、贷款、刷卡收手续费',en:'Banking, lending, card fees'},d1:{zh:'高利率扩大银行息差，支付巨头稳增',en:'High rates widen bank margins; payments grow steadily'},d2:{zh:'降息预期压制银行估值，支付双寡头不受利率影响',en:'Rate-cut bets weigh on banks; payment duopoly is rate-immune'}},
+  {s:'energy',p:'-3%',d:-1,r:{zh:'承压',en:'Pressured'},bg:'#FAEEDA',bc:'#633806',d0:{zh:'卖石油天然气，跟着油价涨跌',en:'Oil & gas — tracks crude prices'},d1:{zh:'油价回落拖累油企，新能源逆势',en:'Falling oil hurts majors; renewables buck the trend'},d2:{zh:'OPEC减产vs需求放缓，绿能转型带来重估机会',en:'OPEC cuts vs softening demand; green transition drives re-rating'}},
+  {s:'health',p:'+8%',d:1,r:{zh:'防御',en:'Defensive'},bg:'#FBEAF0',bc:'#993556',d0:{zh:'卖药品和医疗服务，人总会生病',en:'Drugs & care — people always get sick'},d1:{zh:'老龄化长期引擎，辉瑞新冠红利消退',en:'Aging is the long engine; Pfizer COVID windfall fades'},d2:{zh:'GLP-1减肥药颠覆整个医疗生态系统',en:'GLP-1 weight-loss drugs reshape the whole ecosystem'}},
+  {s:'consumer',p:'+5%',d:1,r:{zh:'分化',en:'Divergent'},bg:'#EEEDFE',bc:'#3C3489',d0:{zh:'把东西卖给普通消费者',en:'Selling to everyday consumers'},d1:{zh:'必需消费抗跌，可选消费承压',en:'Staples hold up; discretionary under pressure'},d2:{zh:'消费降级+通胀黏性，平价与高端两头强，中端被夹击',en:'Trade-down + sticky inflation — value & luxury win, middle squeezed'}},
+  {s:'industrial',p:'+4%',d:1,r:{zh:'平稳',en:'Stable'},bg:'#F1EFE8',bc:'#5F5E5A',d0:{zh:'造飞机、挖掘机和工业设备',en:'Planes, excavators, industrial gear'},d1:{zh:'航空复苏受益，波音危机持续',en:'Aviation recovery helps; Boeing crisis lingers'},d2:{zh:'再工业化政策+基建法案驱动，但PMI需密切跟踪',en:'Re-shoring + infra bills drive demand, but watch PMI closely'}},
+];
+
+const COS={
+  tech:[
+    {n:{zh:'苹果',en:'Apple'},t:'AAPL',bg:'#E6F1FB',tc:'#185FA5',c:'#378ADD',rev:954,ni:248,mg:26,pe:31,rg:4,ev:24,rt:'买入',mkey:{zh:'AI硬件整合',en:'AI hardware'}},
+    {n:{zh:'微软',en:'Microsoft'},t:'MSFT',bg:'#E1F5EE',tc:'#0F6E56',c:'#1D9E75',rev:701,ni:258,mg:37,pe:34,rg:13,ev:28,rt:'强烈买入',mkey:{zh:'云+AI核心',en:'Cloud+AI core'}},
+    {n:{zh:'谷歌',en:'Alphabet'},t:'GOOGL',bg:'#FAEEDA',tc:'#633806',c:'#BA7517',rev:902,ni:345,mg:38,pe:20,rg:12,ev:16,rt:'买入',mkey:{zh:'广告抗周期',en:'Resilient ads'}},
+    {n:{zh:'英伟达',en:'Nvidia'},t:'NVDA',bg:'#EAF3DE',tc:'#3B6D11',c:'#639922',rev:441,ni:190,mg:43,pe:38,rg:69,ev:32,rt:'强烈买入',mkey:{zh:'AI军备赢家',en:'AI arms winner'}},
+    {n:{zh:'特斯拉',en:'Tesla'},t:'TSLA',bg:'#FCEBEB',tc:'#791F1F',c:'#A32D2D',rev:193,ni:4,mg:2,pe:180,rg:-9,ev:58,rt:'持有',mkey:{zh:'价格战损利润',en:'Price war hits profit'}},
+    {n:{zh:'Meta',en:'Meta'},t:'META',bg:'#E6F1FB',tc:'#0C447C',c:'#185FA5',rev:422,ni:165,mg:39,pe:26,rg:16,ev:20,rt:'买入',mkey:{zh:'AI广告变现',en:'AI ad monetization'}},
+  ],
+  finance:[
+    {n:{zh:'摩根大通',en:'JPMorgan'},t:'JPM',bg:'#E1F5EE',tc:'#085041',c:'#1D9E75',rev:458,ni:141,mg:31,pe:13,rg:8,ev:null,rt:'买入',mkey:{zh:'息差扩大',en:'Wider spread'}},
+    {n:{zh:'Visa',en:'Visa'},t:'V',bg:'#E6F1FB',tc:'#0C447C',c:'#185FA5',rev:96,ni:51,mg:53,pe:31,rg:10,ev:24,rt:'强烈买入',mkey:{zh:'消费金额挂钩',en:'Spend-linked'}},
+    {n:{zh:'高盛',en:'Goldman Sachs'},t:'GS',bg:'#F1EFE8',tc:'#2C2C2A',c:'#5F5E5A',rev:154,ni:43,mg:28,pe:13,rg:15,ev:null,rt:'买入',mkey:{zh:'并购复苏受益',en:'M&A recovery'}},
+    {n:{zh:'伯克希尔',en:'Berkshire'},t:'BRK.B',bg:'#FAEEDA',tc:'#633806',c:'#EF9F27',rev:890,ni:176,mg:20,pe:22,rg:5,ev:null,rt:'买入',mkey:{zh:'防御性极强',en:'Highly defensive'}},
+    {n:{zh:'万事达',en:'Mastercard'},t:'MA',bg:'#FCEBEB',tc:'#791F1F',c:'#A32D2D',rev:73,ni:32,mg:44,pe:34,rg:11,ev:22,rt:'买入',mkey:{zh:'全球消费挂钩',en:'Global spend'}},
+  ],
+  energy:[
+    {n:{zh:'埃克森美孚',en:'ExxonMobil'},t:'XOM',bg:'#FAEEDA',tc:'#633806',c:'#EF9F27',rev:833,ni:78,mg:9,pe:14,rg:-4,ev:8,rt:'持有',mkey:{zh:'油价直接相关',en:'Oil-price linked'}},
+    {n:{zh:'雪佛龙',en:'Chevron'},t:'CVX',bg:'#FAEEDA',tc:'#412402',c:'#BA7517',rev:476,ni:35,mg:7,pe:16,rg:-7,ev:7,rt:'持有',mkey:{zh:'高股息防御',en:'High-yield defense'}},
+    {n:{zh:'NextEra',en:'NextEra'},t:'NEE',bg:'#EAF3DE',tc:'#3B6D11',c:'#639922',rev:64,ni:17,mg:27,pe:20,rg:5,ev:15,rt:'买入',mkey:{zh:'绿能政策受益',en:'Green policy'}},
+    {n:{zh:'BP',en:'BP'},t:'BP',bg:'#E6F1FB',tc:'#0C447C',c:'#378ADD',rev:473,ni:18,mg:4,pe:12,rg:-12,ev:6,rt:'持有',mkey:{zh:'转型阵痛期',en:'Transition pain'}},
+  ],
+  health:[
+    {n:{zh:'强生',en:'J&J'},t:'JNJ',bg:'#FBEAF0',tc:'#993556',c:'#D4537E',rev:224,ni:52,mg:23,pe:16,rg:2,ev:13,rt:'买入',mkey:{zh:'医疗消耗品稳定',en:'Stable consumables'}},
+    {n:{zh:'联合健康',en:'UnitedHealth'},t:'UNH',bg:'#FBEAF0',tc:'#4B1528',c:'#993556',rev:1099,ni:69,mg:6,pe:26,rg:9,ev:16,rt:'买入',mkey:{zh:'老龄化长期利好',en:'Aging tailwind'}},
+    {n:{zh:'辉瑞',en:'Pfizer'},t:'PFE',bg:'#E6F1FB',tc:'#0C447C',c:'#378ADD',rev:136,ni:11,mg:8,pe:22,rg:-4,ev:10,rt:'持有',mkey:{zh:'新冠红利消退',en:'COVID fade'}},
+    {n:{zh:'艾伯维',en:'AbbVie'},t:'ABBV',bg:'#EAF3DE',tc:'#3B6D11',c:'#639922',rev:136,ni:40,mg:29,pe:17,rg:5,ev:14,rt:'买入',mkey:{zh:'专利药高壁垒',en:'Patent moat'}},
+  ],
+  consumer:[
+    {n:{zh:'沃尔玛',en:'Walmart'},t:'WMT',bg:'#E6F1FB',tc:'#0C447C',c:'#185FA5',rev:1803,ni:54,mg:3,pe:38,rg:5,ev:22,rt:'买入',mkey:{zh:'低价通胀受益',en:'Value wins inflation'}},
+    {n:{zh:'麦当劳',en:'McDonald’s'},t:'MCD',bg:'#FAEEDA',tc:'#633806',c:'#EF9F27',rev:63,ni:19,mg:30,pe:24,rg:2,ev:19,rt:'买入',mkey:{zh:'衰退中扛得住',en:'Recession-proof'}},
+    {n:{zh:'可口可乐',en:'Coca-Cola'},t:'KO',bg:'#FCEBEB',tc:'#791F1F',c:'#A32D2D',rev:119,ni:28,mg:24,pe:25,rg:3,ev:21,rt:'买入',mkey:{zh:'终极防御资产',en:'Ultimate defensive'}},
+    {n:{zh:'耐克',en:'Nike'},t:'NKE',bg:'#F1EFE8',tc:'#2C2C2A',c:'#5F5E5A',rev:116,ni:6,mg:5,pe:30,rg:-7,ev:14,rt:'持有',mkey:{zh:'中国承压转型',en:'China drag'}},
+  ],
+  industrial:[
+    {n:{zh:'卡特彼勒',en:'Caterpillar'},t:'CAT',bg:'#FAEEDA',tc:'#633806',c:'#EF9F27',rev:147,ni:24,mg:16,pe:16,rg:-3,ev:11,rt:'持有',mkey:{zh:'基建支出相关',en:'Infra spend'}},
+    {n:{zh:'GE航空',en:'GE Aerospace'},t:'GE',bg:'#E6F1FB',tc:'#0C447C',c:'#378ADD',rev:90,ni:13,mg:14,pe:32,rg:11,ev:20,rt:'买入',mkey:{zh:'航空复苏受益',en:'Aviation recovery'}},
+    {n:{zh:'波音',en:'Boeing'},t:'BA',bg:'#FCEBEB',tc:'#791F1F',c:'#A32D2D',rev:196,ni:-3,mg:-2,pe:null,rg:-3,ev:null,rt:'持有',mkey:{zh:'质量危机持续',en:'Quality crisis'}},
+    {n:{zh:'霍尼韦尔',en:'Honeywell'},t:'HON',bg:'#EAF3DE',tc:'#3B6D11',c:'#639922',rev:99,ni:14,mg:14,pe:24,rg:8,ev:16,rt:'买入',mkey:{zh:'工业AI受益',en:'Industrial AI'}},
+  ],
+};
+
+const INSIGHTS={
+  tech:{
+    0:[{ic:'ti-cpu',bg:'#E6F1FB',cc:'#185FA5',t:{zh:'英伟达：AI时代最大赢家',en:'Nvidia: biggest winner of the AI era'},b:{zh:'英伟达的GPU芯片是训练AI必须的，就像盖房子离不开砖头。微软、谷歌每年花几百亿买它的芯片，所以英伟达营收大涨，利润率极高——卖100块芯片就净赚40多块。',en:'Nvidia’s GPUs are the bricks of AI — you can’t train models without them. Microsoft and Google spend tens of billions on them yearly, so revenue soars and margins are huge: ~$43 profit on every $100 of chips sold.'},tags:[{zh:'英伟达高增长',en:'High growth'},{zh:'净利率领先',en:'Top margin'}]},
+       {ic:'ti-trending-down',bg:'#FCEBEB',cc:'#A32D2D',t:{zh:'特斯拉：价格战把利润打没了',en:'Tesla: a price war erased its profit'},b:{zh:'为了和比亚迪竞争，特斯拉不断降价，净利率从17%跌到只剩个位数。高市盈率全靠未来Robotaxi和机器人的想象撑着，现在的基本面并不支持。',en:'To fight BYD, Tesla kept cutting prices — net margin fell from 17% to single digits. Its sky-high P/E rests on future robotaxi and robot dreams, not today’s fundamentals.'},tags:[{zh:'利润大跌',en:'Profit plunge'},{zh:'靠故事估值',en:'Story-driven'}]}],
+    1:[{ic:'ti-cpu',bg:'#E6F1FB',cc:'#185FA5',t:{zh:'AI算力超级周期：英伟达护城河极深',en:'AI compute supercycle: Nvidia’s deep moat'},b:{zh:'英伟达GPU市占率超80%，CUDA软件生态让对手落后5年。微软/谷歌/Meta每季资本开支巨大，多数流向英伟达。谷歌PE最低，Cloud加速增长被市场低估。',en:'Nvidia holds 80%+ GPU share; its CUDA software ecosystem keeps rivals ~5 years behind. Hyperscaler capex is enormous and mostly flows to Nvidia. Alphabet has the lowest P/E — its accelerating Cloud is underrated.'},tags:[{zh:'市占率>80%',en:'80%+ share'},{zh:'CUDA护城河',en:'CUDA moat'},{zh:'谷歌PE偏低',en:'Cheap Alphabet'}]},
+       {ic:'ti-scale',bg:'#EAF3DE',cc:'#3B6D11',t:{zh:'估值分化：买确定性还是买故事？',en:'Valuation split: certainty vs story'},b:{zh:'微软/英伟达靠高增速支撑PE相对合理；谷歌偏低估；特斯拉则主要押注未来。原则：PE高不一定贵，看增速匹配（PEG=PE/增速，小于1通常算合理）。',en:'Microsoft/Nvidia justify their P/E with growth; Alphabet looks cheap; Tesla mostly bets on the future. Rule: a high P/E isn’t always expensive — check PEG (P/E ÷ growth); below 1 is usually reasonable.'},tags:[{zh:'PEG<1较合理',en:'PEG<1 = fair'},{zh:'增速匹配估值',en:'Growth-matched'}]}],
+    2:[{ic:'ti-cpu',bg:'#E6F1FB',cc:'#185FA5',t:{zh:'渗透率溢价 vs 兑现风险',en:'Adoption premium vs delivery risk'},b:{zh:'英伟达EV/EBITDA远高于历史均值，溢价来自AI资本开支超周期+技术领先+电力瓶颈延长需求窗口。风险：利率上升压缩高PE、中国出口管制影响约25%营收、定制芯片长期替代。',en:'Nvidia’s EV/EBITDA sits well above its historical mean — the premium reflects an AI capex supercycle, tech leadership, and power bottlenecks extending demand. Risks: higher rates compress rich P/Es, China export controls hit ~25% of revenue, and custom silicon erodes share long-term.'},tags:[{zh:'EV/EBITDA偏高',en:'Rich EV/EBITDA'},{zh:'中国管制风险',en:'China risk'}]},
+       {ic:'ti-chart-dots',bg:'#FAEEDA',cc:'#633806',t:{zh:'FCF质量：现金奶牛 vs 烧钱建厂',en:'FCF quality: cash cow vs cash burn'},b:{zh:'苹果FCF转化率约95%（接近净利润全变现金），是现金奶牛型公司，可支撑大规模回购。特斯拉FCF低且不稳，大量现金被工厂消耗，离自由现金流公司还远。',en:'Apple converts ~95% of profit into free cash — a true cash cow funding huge buybacks. Tesla’s FCF is low and erratic, with cash consumed by factory build-outs; it’s far from a free-cash-flow business.'},tags:[{zh:'苹果转化率95%',en:'Apple 95% conv.'},{zh:'特斯拉烧钱',en:'Tesla burns cash'}]}]},
+  finance:{
+    0:[{ic:'ti-building-bank',bg:'#E1F5EE',cc:'#0F6E56',t:{zh:'银行：利率越高，赚越多',en:'Banks: higher rates, higher profit'},b:{zh:'摩根大通收入主要来自"存贷差"——低利率吸收存款，高利率贷出去，中间差额就是利润。美联储加息让这个差额变大，银行这两年大赚。',en:'JPMorgan mostly earns the "spread" — take deposits cheaply, lend at higher rates, pocket the gap. Fed hikes widened that gap, so banks earned big these last two years.'},tags:[{zh:'利率↑=利润↑',en:'Rates↑=profit↑'}]},
+       {ic:'ti-credit-card',bg:'#E6F1FB',cc:'#185FA5',t:{zh:'Visa：每笔刷卡都在赚钱',en:'Visa: paid on every swipe'},b:{zh:'Visa不放贷不担风险，每笔刷卡收0.1-0.3%手续费。全球每天几十亿笔交易，躺着赚钱，净利率53%和科技公司比肩。',en:'Visa lends nothing and bears no credit risk — it just takes 0.1–0.3% of each swipe. With billions of daily transactions, its 53% net margin rivals big tech.'},tags:[{zh:'净利率53%',en:'53% margin'},{zh:'无坏账',en:'No bad debt'}]}],
+    1:[{ic:'ti-building-bank',bg:'#E1F5EE',cc:'#0F6E56',t:{zh:'利率周期决定板块命运',en:'Rate cycle drives the sector'},b:{zh:'高利率=银行息差扩大，同时抑制并购/IPO。当前银行PE远低于大盘均值，股息约3%形成安全垫。降息预期延迟是近期压制估值的核心。',en:'High rates widen bank spreads but cool M&A/IPO activity. Bank P/Es sit well below the market, with ~3% dividends as a cushion. Delayed rate-cut expectations are the main valuation drag.'},tags:[{zh:'银行PE低',en:'Low P/E'},{zh:'股息约3%',en:'~3% yield'}]},
+       {ic:'ti-safe',bg:'#F1EFE8',cc:'#2C2C2A',t:{zh:'伯克希尔：现金储备是底牌',en:'Berkshire: cash is the trump card'},b:{zh:'持有大量现金+美债，高利率下现金本身产生约5%回报，同时等待市场下跌抄底。旗下保险+铁路+能源是经济晴雨表。',en:'It sits on a huge cash + Treasuries pile earning ~5% in a high-rate world, while waiting to buy the dip. Its insurance + rail + energy units are a barometer of the economy.'},tags:[{zh:'巨额现金',en:'Cash pile'},{zh:'等待抄底',en:'Dry powder'}]}],
+    2:[{ic:'ti-building-bank',bg:'#E1F5EE',cc:'#0F6E56',t:{zh:'NII见顶后手续费接力',en:'After NII peaks, fees take over'},b:{zh:'净利息收入随利率见顶开始压缩，需靠投行手续费弥补。并购市场回暖带动投行收入。Basel III资本新规可能压缩回购空间，需关注。',en:'Net interest income compresses as rates peak, so investment-banking fees must pick up the slack. A reviving M&A market lifts IB revenue. Watch Basel III capital rules, which may limit buybacks.'},tags:[{zh:'NII见顶',en:'NII peak'},{zh:'Basel III约束',en:'Basel III'}]},
+       {ic:'ti-credit-card',bg:'#E6F1FB',cc:'#0C447C',t:{zh:'支付双寡头护城河',en:'Payments duopoly moat'},b:{zh:'Visa+万事达占全球约80%刷卡网络，护城河=商户接受度+持卡规模+欺诈检测AI。长期边际风险来自央行数字货币（CBDC）。',en:'Visa + Mastercard run ~80% of global card networks; the moat is merchant acceptance + cardholder scale + fraud-detection AI. The long-tail risk is central-bank digital currencies (CBDCs).'},tags:[{zh:'双寡头80%',en:'80% duopoly'},{zh:'CBDC风险',en:'CBDC risk'}]}]},
+  energy:{
+    0:[{ic:'ti-flame',bg:'#FAEEDA',cc:'#633806',t:{zh:'能源：跟着油价涨跌',en:'Energy: rides the oil price'},b:{zh:'埃克森和雪佛龙挖石油卖石油。油价高就大赚，油价跌利润也跌。这是周期性行业——收入不由公司决定，而由大宗商品价格决定。',en:'Exxon and Chevron pump and sell oil. High prices = big profit; low prices = shrinking profit. It’s cyclical — revenue is set by commodity prices, not the company.'},tags:[{zh:'周期性行业',en:'Cyclical'}]},
+       {ic:'ti-bulb',bg:'#EAF3DE',cc:'#3B6D11',t:{zh:'NextEra：未来能源方向',en:'NextEra: where energy is heading'},b:{zh:'NextEra做风电太阳能，收入来自卖电不受油价影响，更像公用事业——稳定可预期，政府绿色补贴持续受益。',en:'NextEra runs wind and solar; revenue comes from selling power, immune to oil prices — more like a utility: stable, predictable, and a steady beneficiary of green subsidies.'},tags:[{zh:'绿能受益',en:'Green tailwind'},{zh:'收入稳定',en:'Stable revenue'}]}],
+    1:[{ic:'ti-flame',bg:'#FAEEDA',cc:'#633806',t:{zh:'高股息低估值：陷阱还是机会？',en:'High yield, low P/E: trap or value?'},b:{zh:'油企PE远低于大盘、股息约4%，但低估值不等于便宜：ESG资金出逃可能是结构性折价，新能源长期替代需求。适合股息防御，不适合追求增长。',en:'Oil majors trade well below the market at ~4% yield, but cheap isn’t always value: ESG outflows may be a structural discount, and renewables erode long-run demand. Good for income defense, not growth.'},tags:[{zh:'PE低',en:'Low P/E'},{zh:'ESG折价',en:'ESG discount'}]},
+       {ic:'ti-bulb',bg:'#EAF3DE',cc:'#3B6D11',t:{zh:'能源转型十年路',en:'The decade of energy transition'},b:{zh:'EV渗透率每+1%减少约100万桶/天石油需求；石油需求预计2030前后见顶。油企应对：碳捕获+收购天然气（过渡能源）+维持高股息。',en:'Every 1% rise in EV adoption cuts ~1M barrels/day of oil demand; oil demand is seen peaking around 2030. Majors respond with carbon capture, gas acquisitions (the "bridge" fuel), and fat dividends.'},tags:[{zh:'2030见顶',en:'Peak ~2030'},{zh:'天然气过渡',en:'Gas bridge'}]}],
+    2:[{ic:'ti-flame',bg:'#FAEEDA',cc:'#633806',t:{zh:'三重宏观定价因子',en:'Three macro pricing factors'},b:{zh:'①供给：OPEC减产执行度vs美国页岩油弹性②需求：中国制造业PMI+欧美航空出行③美元指数（美元强→油价承压）。油企EV/EBITDA处历史低位。',en:'(1) Supply: OPEC cut discipline vs US shale elasticity. (2) Demand: China manufacturing PMI + Western air travel. (3) The dollar (stronger USD pressures oil). Majors’ EV/EBITDA sits at historic lows.'},tags:[{zh:'OPEC',en:'OPEC'},{zh:'中国PMI',en:'China PMI'},{zh:'美元',en:'USD'}]},
+       {ic:'ti-bulb',bg:'#EAF3DE',cc:'#3B6D11',t:{zh:'NextEra双重估值逻辑',en:'NextEra’s dual valuation logic'},b:{zh:'按公用事业PE 18-22x合理；按成长股可给25x+。核心风险：利率上升压缩公用事业估值（长久期高度利率敏感）、IRA补贴政策逆风。',en:'As a utility, 18–22x P/E is fair; as a grower it can fetch 25x+. Key risks: rising rates compress utility valuations (long-duration, rate-sensitive) and IRA subsidy policy headwinds.'},tags:[{zh:'利率敏感',en:'Rate-sensitive'},{zh:'政策风险',en:'Policy risk'}]}]},
+  health:{
+    0:[{ic:'ti-pill',bg:'#FBEAF0',cc:'#993556',t:{zh:'医疗：人总会生病，所以最稳定',en:'Healthcare: people always get sick'},b:{zh:'强生卖药品器械，联合健康是大型保险公司。不管经济好坏人都要看病买药，所以医疗股是典型防御性行业——大家都跌时它跌得少。',en:'J&J sells drugs and devices; UnitedHealth is a giant insurer. People need care in any economy, so healthcare is the classic defensive sector — it falls less when everything drops.'},tags:[{zh:'防御性强',en:'Defensive'},{zh:'老龄化利好',en:'Aging tailwind'}]},
+       {ic:'ti-vaccine',bg:'#E6F1FB',cc:'#185FA5',t:{zh:'辉瑞：依赖单一产品的风险',en:'Pfizer: single-product risk'},b:{zh:'辉瑞靠新冠疫苗在2022年大赚，现在疫情结束收入大幅缩水。这是"一次性收入"的典型风险——单一产品周期结束后需要重新找方向。',en:'Pfizer earned a fortune from COVID vaccines in 2022; with the pandemic over, revenue collapsed. A textbook "one-off revenue" risk — once a single product’s cycle ends, the company must find a new direction.'},tags:[{zh:'新冠红利消退',en:'COVID fade'}]}],
+    1:[{ic:'ti-heartbeat',bg:'#FBEAF0',cc:'#993556',t:{zh:'老龄化：50年顺风',en:'Aging: a 50-year tailwind'},b:{zh:'美国老年人口持续增长，每增加一个老人医疗开支显著增加。联合健康、艾伯维直接受益。板块PE低于大盘，防御属性合理溢价。',en:'The US elderly population keeps growing, and each added senior sharply raises medical spending. UnitedHealth and AbbVie benefit directly. The sector’s below-market P/E carries a fair defensive premium.'},tags:[{zh:'老龄化顺风',en:'Aging'},{zh:'PE低于大盘',en:'Below-market P/E'}]},
+       {ic:'ti-microscope',bg:'#FBEAF0',cc:'#4B1528',t:{zh:'GLP-1革命颠覆医疗生态',en:'GLP-1 revolution reshapes healthcare'},b:{zh:'减肥针不仅治肥胖，还改善心血管、肾病。潜在影响：减少心脏手术→利空骨科器械；改变饮食→利空食品股。颠覆性可能超预期。',en:'Weight-loss injections treat more than obesity — they improve heart and kidney outcomes. Ripple effects: fewer heart surgeries hurt orthopedic devices; changed diets hurt food stocks. The disruption may exceed expectations.'},tags:[{zh:'GLP-1颠覆',en:'GLP-1 shift'},{zh:'影响骨科/食品',en:'Hits ortho/food'}]}],
+    2:[{ic:'ti-dna',bg:'#FBEAF0',cc:'#72243E',t:{zh:'生物技术管线期权估值',en:'Biotech pipelines as options'},b:{zh:'评估生物技术公司需对每个管线药物：成功概率（临床约30%）×市场规模×折现率→期权价值之和。艾伯维靠新药接力填补专利过期缺口。',en:'Value biotech by treating each pipeline drug as an option: success probability (~30% in trials) × market size × discount → sum of option values. AbbVie uses new drugs to backfill expiring patents.'},tags:[{zh:'成功率约30%',en:'~30% success'},{zh:'期权折现',en:'Option pricing'}]},
+       {ic:'ti-shield',bg:'#E1F5EE',cc:'#0F6E56',t:{zh:'药价谈判vs赔付率上升',en:'Price negotiation vs rising claims'},b:{zh:'通胀削减法案允许Medicare谈判药价，利空药企。保险公司面临GLP-1成本压力+赔付率上升。药企应对：生物类似药+收购对冲专利悬崖（2026-2028高峰）。',en:'The IRA lets Medicare negotiate drug prices — a headwind for pharma. Insurers face GLP-1 cost pressure and rising loss ratios. Pharma responds with biosimilars and acquisitions to hedge the 2026–2028 patent cliff.'},tags:[{zh:'药价谈判',en:'Price talks'},{zh:'专利悬崖',en:'Patent cliff'}]}]},
+  consumer:{
+    0:[{ic:'ti-shopping-cart',bg:'#EEEDFE',cc:'#3C3489',t:{zh:'必需vs可选：两种逻辑',en:'Staples vs discretionary'},b:{zh:'必需消费（吃喝日用，再差也买）和可选消费（运动鞋、旅游，没钱就不买）。沃尔玛卖便宜货，经济越差越受益。可口可乐定价权强，涨价也照买。',en:'Staples (food, daily goods — bought no matter what) vs discretionary (sneakers, travel — skipped when money’s tight). Walmart sells value, so it gains in downturns. Coca-Cola has pricing power — people buy even after hikes.'},tags:[{zh:'必需vs可选',en:'Staples vs disc.'}]},
+       {ic:'ti-burger',bg:'#FAEEDA',cc:'#633806',t:{zh:'麦当劳：特许经营让风险趋零',en:'McDonald’s: franchising kills risk'},b:{zh:'麦当劳大部分门店是特许经营——别人付费用品牌开店，麦当劳只收租金和品牌费，不担食材涨价风险。所以净利率高达30%，远超一般餐厅。',en:'Most McDonald’s outlets are franchised — others pay to use the brand, while McDonald’s collects rent and royalties without bearing food-cost risk. That’s why its 30% net margin dwarfs a normal restaurant’s.'},tags:[{zh:'特许经营',en:'Franchise'},{zh:'净利率30%',en:'30% margin'}]}],
+    1:[{ic:'ti-shopping-cart',bg:'#EEEDFE',cc:'#3C3489',t:{zh:'通胀下的赢家和输家',en:'Inflation’s winners and losers'},b:{zh:'沃尔玛/可口可乐靠定价权保住利润；耐克等中端可选消费两头受压（消费者省钱+中国竞争）。沃尔玛靠电商+广告重构商业模式，已非纯零售估值。',en:'Walmart and Coca-Cola protect profit via pricing power; mid-market discretionary names like Nike get squeezed from both sides (thrifty shoppers + China competition). Walmart’s e-commerce + ads have reshaped its model beyond pure retail.'},tags:[{zh:'必需消费赢',en:'Staples win'},{zh:'耐克受压',en:'Nike squeezed'}]},
+       {ic:'ti-trending-down',bg:'#FCEBEB',cc:'#A32D2D',t:{zh:'耐克：中国+渠道双重失误',en:'Nike: China + channel missteps'},b:{zh:'中国营收下滑被本土品牌蚕食；北美过度押注直销关闭批发后货架被抢占；净利率从12%跌至5%。新CEO战略转型需2-3年。',en:'China revenue slid as local brands grabbed share; in North America, over-betting on direct sales and dropping wholesale ceded shelf space; net margin fell from 12% to 5%. The new CEO’s turnaround needs 2–3 years.'},tags:[{zh:'中国下滑',en:'China decline'},{zh:'转型需3年',en:'3-yr turnaround'}]}],
+    2:[{ic:'ti-building-store',bg:'#EEEDFE',cc:'#26215C',t:{zh:'沃尔玛：零售商→平台公司',en:'Walmart: retailer → platform'},b:{zh:'广告收入快速增长（高利润率），电商占比提升，物流向第三方开放。PE按传统零售偏贵，但按平台公司框架（广告+数据+物流）有合理性，对标亚马逊AWS重构估值。',en:'Ad revenue is growing fast (high margin), e-commerce mix is rising, and logistics now serves third parties. Its P/E looks pricey for a retailer but reasonable as a platform (ads + data + logistics) — echoing how AWS re-rated Amazon.'},tags:[{zh:'广告增长',en:'Ad growth'},{zh:'平台重构',en:'Platform re-rate'}]},
+       {ic:'ti-droplet',bg:'#FCEBEB',cc:'#791F1F',t:{zh:'可口可乐：股息贵族估值锚',en:'Coca-Cola: dividend-king anchor'},b:{zh:'EV/EBITDA略高于历史均值，溢价来自百年品牌+全球分销+轻资产。FCF转化率约95%，连续60余年提升股息。长期风险：GLP-1降低含糖饮料需求。',en:'EV/EBITDA sits slightly above its historical mean — a premium for a century-old brand, global distribution, and an asset-light model. It converts ~95% of profit to FCF and has raised dividends 60+ years straight. Long-term risk: GLP-1 cutting sugary-drink demand.'},tags:[{zh:'股息贵族',en:'Dividend king'},{zh:'GLP-1威胁',en:'GLP-1 risk'}]}]},
+  industrial:{
+    0:[{ic:'ti-building-factory-2',bg:'#F1EFE8',cc:'#2C2C2A',t:{zh:'工业：给经济建基础设施',en:'Industrials: building the economy'},b:{zh:'卡特彼勒造挖掘机，GE航空造发动机，波音造飞机。订单通常提前几年确定，收入比较稳定，但随经济周期波动。',en:'Caterpillar makes excavators, GE Aerospace makes engines, Boeing makes planes. Orders are usually locked years ahead, so revenue is fairly stable but still swings with the economic cycle.'},tags:[{zh:'订单周期长',en:'Long order cycle'}]},
+       {ic:'ti-plane',bg:'#FCEBEB',cc:'#791F1F',t:{zh:'波音：声誉危机摧毁巨头',en:'Boeing: reputation crisis'},b:{zh:'波音接连出安全事故，监管加严、交付暂停，净利润变负数。空客趁机抢订单。教科书级"声誉危机"案例：信任崩塌后客户立刻转向对手且很难拿回。',en:'A string of safety incidents brought tighter regulation and halted deliveries, pushing Boeing to a net loss as Airbus grabbed orders. A textbook reputation crisis: once trust breaks, customers switch to rivals and rarely come back.'},tags:[{zh:'亏损',en:'Net loss'},{zh:'空客抢单',en:'Airbus gains'}]}],
+    1:[{ic:'ti-building-factory-2',bg:'#F1EFE8',cc:'#2C2C2A',t:{zh:'AI自动化带来新成长曲线',en:'AI automation’s new growth curve'},b:{zh:'传统工业进入AI+机器人升级周期：工业AI软件收入增长、自动驾驶矿山设备需求上升、航空发动机订单积压。再工业化政策直接带来订单增量。',en:'Legacy industrials are entering an AI + robotics upgrade cycle: industrial-AI software revenue rises, autonomous mining gear demand grows, and aero-engine backlogs build. Re-shoring policy directly adds orders.'},tags:[{zh:'工业AI',en:'Industrial AI'},{zh:'政策红利',en:'Policy boost'}]},
+       {ic:'ti-plane',bg:'#E6F1FB',cc:'#0C447C',t:{zh:'GE航空分拆：价值浮现',en:'GE Aerospace spin-off unlocks value'},b:{zh:'GE拆分为三家独立公司让市场单独给优质资产估值。GE航空MRO维修收入占比约45%（高利润经常性收入）。分拆是常见的"价值释放"手段。',en:'GE split into three standalone firms so the market can value each premium asset separately. GE Aerospace earns ~45% from MRO maintenance (high-margin recurring revenue). Spin-offs are a classic value-unlocking move.'},tags:[{zh:'MRO约45%',en:'~45% MRO'},{zh:'分拆释放',en:'Spin-off value'}]}],
+    2:[{ic:'ti-chart-bar',bg:'#F1EFE8',cc:'#2C2C2A',t:{zh:'PMI领先指标与资本开支周期',en:'PMI as the leading indicator'},b:{zh:'制造业PMI领先基本面约3-6个月。当前在荣枯线（50）附近，订单增速放缓。经销商库存高位，未来2-3季度新订单承压。但基建法案资金到位，2026-2028是工程机械大年。',en:'Manufacturing PMI leads fundamentals by 3–6 months. It sits near the 50 boom/bust line, signaling slowing orders. Dealer inventories are high, pressuring new orders for 2–3 quarters. But infrastructure-bill money arrives, making 2026–2028 a big machinery cycle.'},tags:[{zh:'PMI荣枯线',en:'PMI ~50'},{zh:'基建2026',en:'Infra 2026'}]},
+       {ic:'ti-plane',bg:'#E6F1FB',cc:'#0C447C',t:{zh:'波音：深度价值还是持续恶化？',en:'Boeing: deep value or decline?'},b:{zh:'亏损+流动性压力，但交付许可已恢复、全球飞机缺口需约2万架新飞机、双寡头长期无替代。核心问题：FAA监管正常化时间表+月交付量能否恢复。属困境反转押注。',en:'Losses and liquidity stress, yet delivery approvals are restored, the world needs ~20,000 new jets, and the duopoly has no long-term substitute. Key questions: the FAA normalization timeline and whether monthly deliveries recover. A turnaround bet.'},tags:[{zh:'长期需求大',en:'Huge demand'},{zh:'FAA是关键',en:'FAA is key'}]}]},
+};
+
+const GLOSSARY=[
+  {n:{zh:'营收',en:'Revenue'},en:'Revenue',def:{zh:'公司卖产品/服务收到的总钱数，没扣成本。规模大不代表赚钱——亚马逊营收最高但净利率仅约11%。',en:'Total money from selling products/services, before costs. Big isn’t always profitable — Amazon has the highest revenue but only ~11% net margin.'},ex:{zh:'英伟达营收同比大涨',en:'Nvidia revenue surged YoY'}},
+  {n:{zh:'净利润',en:'Net Income'},en:'Net Income',def:{zh:'扣完所有成本和税后真正进口袋的钱。衡量真实盈利能力，也是每股盈利的分子。',en:'What’s truly kept after all costs and taxes. The real measure of profitability and the numerator of EPS.'},ex:{zh:'特斯拉净利润很低，被价格战吃掉',en:'Tesla’s net income is thin, eaten by the price war'}},
+  {n:{zh:'净利润率',en:'Net Margin'},en:'Net Margin',def:{zh:'净利润÷营收。Visa 53%=收100元进53元；特斯拉2%=收100元只进2元。越高代表商业模式越高效。',en:'Net income ÷ revenue. Visa 53% = $53 kept per $100; Tesla 2% = only $2. Higher means a more efficient model.'},ex:{zh:'英伟达43%，特斯拉2%',en:'Nvidia 43%, Tesla 2%'}},
+  {n:{zh:'市盈率',en:'P/E'},en:'P/E',def:{zh:'股价÷每股年利润，可理解为"多少年回本"。越高代表市场越乐观、风险越大，要结合增速看。',en:'Price ÷ annual EPS — roughly "years to earn it back." Higher means more optimism and more risk; read it alongside growth.'},ex:{zh:'谷歌20x，特斯拉180x',en:'Alphabet 20x, Tesla 180x'}},
+  {n:{zh:'同比增长',en:'YoY'},en:'YoY',def:{zh:'和去年同一季度相比的变化%。排除季节性，最常用的增速衡量方式。',en:'Change vs the same quarter last year. Strips out seasonality — the most common growth gauge.'},ex:{zh:'英伟达+69%，特斯拉-9%',en:'Nvidia +69%, Tesla -9%'}},
+  {n:{zh:'市值',en:'Market Cap'},en:'Market Cap',def:{zh:'股价×总股数=全市场对公司的定价。苹果市值常年全球前列，比很多国家GDP还高。',en:'Price × shares = the market’s price tag on the company. Apple is consistently among the world’s largest — bigger than many nations’ GDP.'},ex:{zh:'苹果是全球市值最高公司之一',en:'Apple is among the most valuable firms'}},
+  {n:{zh:'EV/EBITDA',en:'EV/EBITDA'},en:'EV/EBITDA',def:{zh:'比PE更准，排除资本结构和会计差异，跨行业比较更公平。行业内越低越便宜。',en:'More precise than P/E — it strips out capital structure and accounting differences, making cross-industry comparison fairer. Lower = cheaper within a sector.'},ex:{zh:'谷歌16x，特斯拉58x偏贵',en:'Alphabet 16x, Tesla 58x (pricey)'}},
+  {n:{zh:'自由现金流',en:'FCF'},en:'FCF',def:{zh:'经营现金−资本开支。比利润更真实，因为利润可被会计调整，现金骗不了人。越高越好。',en:'Operating cash − capex. More honest than profit, since earnings can be massaged but cash can’t. Higher is better.'},ex:{zh:'苹果FCF极高，波音为负',en:'Apple’s FCF is huge; Boeing’s is negative'}},
+  {n:{zh:'分析师评级',en:'Rating'},en:'Rating',def:{zh:'强烈买入/买入/持有/卖出，是华尔街分析师的综合判断。买入代表预期跑赢大盘。仅供参考非定论。',en:'Strong Buy/Buy/Hold/Sell — Wall Street analysts’ verdict. Buy means expected to beat the market. A reference, not gospel.'},ex:{zh:'英伟达：强烈买入',en:'Nvidia: Strong Buy'}},
+  {n:{zh:'52周高低',en:'52W Range'},en:'52W Range',def:{zh:'过去一年股价最高最低价。判断当前价是高位偏贵还是低位偏便宜。但便宜不代表好，要看原因。',en:'The highest and lowest price over the past year. Helps judge if today’s price is high (pricey) or low (cheap) — but cheap isn’t always good; check why.'},ex:{zh:'接近低点需判断机会还是陷阱',en:'Near the low? Opportunity or trap?'}},
+  {n:{zh:'市净率',en:'P/B'},en:'P/B',def:{zh:'股价÷每股净资产，适合评估金融股。P/B<1代表股价低于账面价值，理论有安全垫但也可能资产质量差。',en:'Price ÷ book value per share, useful for financials. P/B<1 means trading below book — a theoretical cushion, but may reflect poor asset quality.'},ex:{zh:'银行股常用P/B衡量',en:'Banks are often judged on P/B'}},
+  {n:{zh:'股息率',en:'Dividend Yield'},en:'Dividend Yield',def:{zh:'每股年股息÷股价。越高分红回报越多。常见于成熟稳定型公司，高增长科技股通常不分红。',en:'Annual dividend ÷ price. Higher = more income. Common among mature, stable firms; fast-growing tech usually pays none.'},ex:{zh:'埃克森股息率约4%',en:'Exxon yields ~4%'}},
+  {n:{zh:'PMI',en:'PMI'},en:'PMI',def:{zh:'制造业景气调查。50以上扩张，以下收缩，是预测工业订单最重要的领先指标，领先约3-6个月。',en:'A manufacturing survey. Above 50 = expansion, below = contraction. The key leading indicator for industrial orders, ahead by ~3–6 months.'},ex:{zh:'美国PMI在荣枯线附近',en:'US PMI near the 50 line'}},
+  {n:{zh:'PEG',en:'PEG'},en:'PEG',def:{zh:'市盈率÷盈利增速。<1通常合理或低估，>2偏贵。比PE科学，综合了增速。',en:'P/E ÷ earnings growth. Below 1 is usually fair or cheap; above 2 is pricey. Smarter than P/E because it factors in growth.'},ex:{zh:'英伟达PE38÷增速69≈0.55较合理',en:'Nvidia 38÷69 ≈ 0.55, reasonable'}},
+];
+
+const $=s=>document.querySelector(s);
+const fmtCap=n=>n>=1e6?(n/1e6).toFixed(2)+'T':n>=1e3?(n/1e3).toFixed(0)+'B':Math.round(n)+'M';
+const rating=rt=>T(UI.ratingMap[rt]||{zh:rt,en:rt});
+
+function applyStaticUI(){
+  document.documentElement.lang=LANG==='zh'?'zh-CN':'en';
+  $('#hTitle').textContent=T(UI.title);
+  $('#hSub').textContent=T(UI.sub);
+  $('#langBtn').textContent=LANG==='zh'?'EN':'中';
+  $('#lvLabel').textContent=T(UI.lvLabel);
+  document.querySelectorAll('.lvbtn').forEach((b,i)=>b.textContent=T(UI.lv[i]));
+  $('#keyInput').placeholder=T(UI.keyPh);
+  $('#keySave').textContent=T(UI.keyEnable);
+  if(KEY)$('#keyInput').value=T(UI.keySaved);
+}
+
+function buildTabs(){
+  $('#stabs').innerHTML=Object.entries(SMETA).map(([k,s])=>{
+    const ico=s.logo
+      ?`<img class="stab-logo" data-sym="${s.logo}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('i'),{className:'ti ${s.i}'}))">`
+      :`<i class="ti ${s.i}" style="font-size:14px"></i>`;
+    return `<button class="stab ${k===SEC?'on':''}" data-sec="${k}">${ico}${T(s.n)}</button>`;
+  }).join('');
+  document.querySelectorAll('.stab').forEach(b=>b.onclick=()=>setSector(b.dataset.sec));
+}
+
+function setLv(lv){
+  LV=lv;
+  document.querySelectorAll('.lvbtn').forEach((b,i)=>b.classList.toggle('on',i===lv));
+  $('#lvhint').textContent=T(UI.lvHint[lv]);
+  const nw=$('#lvnew');
+  if(lv>0&&UI.lvNew[lv]){nw.textContent=T(UI.lvNew[lv]);nw.style.display='block';}else nw.style.display='none';
+  render();
+}
+function setSector(sec){
+  SEC=sec;
+  document.querySelectorAll('.stab').forEach(b=>b.classList.toggle('on',b.dataset.sec===sec));
+  render();
+  if(COS[sec]&&KEY)loadList(COS[sec].map(c=>c.t),sec);
+  if(sec==='watch'&&KEY&&WATCH.length)loadList(WATCH,'watch');
+}
+function setLang(l){
+  LANG=l;localStorage.setItem('lang',l);
+  applyStaticUI();buildTabs();setLv(LV);
+}
+
+function destroyCharts(){chartInst.forEach(c=>{try{c.destroy()}catch(e){}});chartInst=[];}
+
+function render(){
+  destroyCharts();
+  const el=$('#mc');el.className='fade';
+  if(SEC==='overview')el.innerHTML=renderOv();
+  else if(SEC==='glossary')el.innerHTML=renderGlossary();
+  else if(SEC==='search')el.innerHTML=renderSearch();
+  else if(SEC==='watch')el.innerHTML=renderWatch();
+  else{el.innerHTML=renderSec();setTimeout(buildCharts,50);if(LV>=1&&KEY)setTimeout(()=>loadNews(SEC),80);}
+}
+
+function isFav(t){return WATCH.includes(t);}
+function toggleFav(t){
+  if(isFav(t))WATCH=WATCH.filter(x=>x!==t);else WATCH.push(t);
+  localStorage.setItem('watch',JSON.stringify(WATCH));
+  render();
+}
+window.toggleFav=toggleFav;
+
+function stockCard(meta){
+  const t=meta.t,L=LIVE[t]||{};
+  const name=meta.n?T(meta.n):(L.name||t);
+  const bg=meta.bg||'#F1EFE8',tc=meta.tc||'#5F5E5A';
+  const priceHtml=L.price!=null?`<span class="coprice">$${L.price.toFixed(2)}</span>${L.dp!=null?`<span class="badge ${L.dp>=0?'up':'dn'}">${L.dp>=0?'+':''}${L.dp.toFixed(2)}%</span>`:''}`
+    :(KEY?`<span class="skel"></span>`:`<span class="coprice ph">${T(UI.fillKey)}</span>`);
+  const pe=L.pe!=null?L.pe.toFixed(0):(meta.pe!=null?meta.pe:null);
+  const mg=L.mg!=null?Math.round(L.mg):(meta.mg!=null?meta.mg:null);
+  const rg=L.rg!=null?Math.round(L.rg):(meta.rg!=null?meta.rg:null);
+  let rows='';
+  if(meta.rev!=null)rows+=`<div class="row"><span>${T(UI.rev)}</span><span class="rv">$${meta.rev}亿</span></div>`;
+  if(mg!=null)rows+=`<div class="row"><span>${T(UI.nm)}</span><span class="rv ${mg<5?'dnt':mg>20?'upt':''}">${mg}%${L.mg!=null?T(UI.liveTag):''}</span></div>`;
+  if(LV>=1){
+    if(rg!=null)rows+=`<div class="row"><span>${T(UI.yoy)}</span><span class="rv ${rg>=0?'upt':'dnt'}">${rg>=0?'+':''}${rg}%</span></div>`;
+    rows+=`<div class="row"><span>${T(UI.pe)}</span><span class="rv">${pe!=null?pe+'x':T(UI.lossTag)}</span></div>`;
+    if(meta.rt)rows+=`<div class="row"><span>${T(UI.rating)}</span><span class="rv">${rating(meta.rt)}</span></div>`;
+  }
+  if(LV>=2){
+    if(meta.ev!==undefined)rows+=`<div class="row"><span>${T(UI.evb)}</span><span class="rv">${meta.ev!=null?meta.ev+'x':'—'}</span></div>`;
+    rows+=`<div class="row"><span>${T(UI.cap)}</span><span class="rv">${L.cap!=null?'$'+fmtCap(L.cap):'—'}</span></div>`;
+    if(meta.mkey)rows+=`<div class="row"><span>${T(UI.macroKw)}</span><span class="rv" style="font-size:10px;color:var(--tx2)">${T(meta.mkey)}</span></div>`;
+  }
+  const logoImg=L.logo?`<img class="logoimg" src="${L.logo}" alt="" onerror="this.style.display='none'">`:'';
+  return `<div class="cocard"><span class="fav ${isFav(t)?'on':''}" onclick="toggleFav('${t}')" title="watchlist">${isFav(t)?'★':'☆'}</span>
+    <div class="cohead"><div class="logobox"><div class="logobg" style="background:${bg};color:${tc}">${name.slice(0,2)}</div>${logoImg}</div>
+    <div><div class="conm">${name}</div><div class="cotk">${t}</div></div></div><div class="prrow">${priceHtml}</div>${rows}</div>`;
+}
+
+function renderOv(){
+  const tiles=SOVDATA.map(s=>{
+    const d=LV===0?s.d0:LV===1?s.d1:s.d2;const sm=SMETA[s.s];
+    return `<div class="sovcard" onclick="setSector('${s.s}')">
+      <div class="sovhead"><div class="sovico" style="background:${s.bg}"><i class="ti ${sm.i}" style="color:${s.bc}"></i></div>
+      <div><div class="sovname">${T(sm.n)}</div><span class="sovperf ${s.d>0?'upt':'dnt'}">${s.p} YTD</span></div></div>
+      <span class="sovrating ${s.d>0?'up':'dn'}">${T(s.r)}</span><div class="sovdesc">${T(d)}</div></div>`;
+  }).join('');
+  let macro='';
+  if(LV===2){
+    const heads=LANG==='zh'?['板块','利率↑','通胀高','衰退','美元强']:['Sector','Rates↑','Inflation','Recession','Strong USD'];
+    const labelMap={'正面':{zh:'正面',en:'Pos'},'负面':{zh:'负面',en:'Neg'},'中性':{zh:'中性',en:'Neu'},'分化':{zh:'分化',en:'Mixed'}};
+    const rows=[['tech','负面','中性','负面','负面'],['finance','正面','正面','负面','中性'],['energy','中性','正面','负面','负面'],['health','中性','中性','正面','中性'],['consumer','负面','分化','分化','负面'],['industrial','负面','中性','负面','负面']];
+    macro=`<div class="sl">${T(UI.macroTitle)}</div><div class="matrx"><table><thead><tr>${heads.map((h,i)=>`<th${i===0?' style="text-align:left"':''}>${h}</th>`).join('')}</tr></thead><tbody>
+    ${rows.map(r=>`<tr><td>${T(SMETA[r[0]].n)}</td>${r.slice(1).map(v=>`<td><span class="badge ${v==='正面'?'up':v==='负面'?'dn':'neu'}">${T(labelMap[v])}</span></td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }
+  return `<div class="sl">${T(UI.secOv)}</div><div class="sovgrid">${tiles}</div>${macro}<div class="note">${T(UI.noteOv)}</div>`;
+}
+
+function renderSec(){
+  const cos=COS[SEC],ins=INSIGHTS[SEC];
+  if(!cos)return `<p class="empty">—</p>`;
+  const peVals=cos.filter(c=>c.pe!=null),avgPE=peVals.length?Math.round(peVals.reduce((a,c)=>a+c.pe,0)/peVals.length):null;
+  const avgMg=Math.round(cos.reduce((a,c)=>a+c.mg,0)/cos.length);
+  const cards=cos.map(stockCard).join('');
+  const lvIns=ins[LV]||ins[0]||[];
+  const insHtml=lvIns.map(i=>`<div class="ins"><div class="insh"><div class="insico" style="background:${i.bg}"><i class="ti ${i.ic}" style="color:${i.cc}"></i></div><div class="institle">${T(i.t)}</div></div><div class="insbody">${T(i.b)}<div style="margin-top:6px">${i.tags.map(g=>`<span class="tag" style="background:${i.bg};color:${i.cc}">${T(g)}</span>`).join('')}</div></div></div>`).join('');
+  const leg=cos.map(c=>`<span><span class="ld" style="background:${c.c}"></span>${T(c.n)}</span>`).join('');
+  const news=LV>=1?`<div class="sl">${T(UI.liveNews)}</div><div id="newsArea"><div class="newsinfo">${KEY?T(UI.loadingNews):T(UI.newsNeedKey)}</div></div>`:'';
+  return `<div class="mcg"><div class="mc"><div class="mcl">${T(UI.mLabelSec)}</div><div class="mcv">${T(SMETA[SEC].n)}</div></div><div class="mc"><div class="mcl">${T(UI.mLabelMg)}</div><div class="mcv">${avgMg}%</div></div>${avgPE!=null&&LV>=1?`<div class="mc"><div class="mcl">${T(UI.mLabelPE)}</div><div class="mcv">${avgPE}x</div></div>`:''}${LV>=1?`<div class="mc"><div class="mcl">${T(UI.mLabelN)}</div><div class="mcv">${cos.length}</div></div>`:''}</div>
+  <div class="sl">${T(UI.companyDetail)}</div><div class="cogrid">${cards}</div>
+  <div class="sl">${LV>=1?T(UI.revVsNi):T(UI.revOnly)}</div><div class="leg">${leg}</div>
+  <div class="cw" style="height:${LV>=1?210:190}px"><canvas id="ch1"></canvas></div>
+  ${LV>=1?`<div class="sl">${T(UI.netMargin)}</div><div class="cw" style="height:170px"><canvas id="ch2"></canvas></div>`:''}
+  <div class="sl">${T(UI.deepRead)}</div>${insHtml}${news}
+  <div class="note">${T(UI.noteSec)}</div>`;
+}
+
+function renderSearch(){
+  return `<div class="searchrow"><input id="searchInput" placeholder="${T(UI.searchPh)}"><button id="searchBtn">${T(UI.searchBtn)}</button></div>
+  <div id="searchResults"><div class="empty">${T(UI.searchHint)}</div></div>`;
+}
+function renderWatch(){
+  if(!WATCH.length)return `<div class="empty">${T(UI.watchEmpty)}</div>`;
+  return `<div class="cogrid">${WATCH.map(t=>stockCard({t})).join('')}</div>`;
+}
+function renderGlossary(){
+  const cats=[{t:UI.glossBasic,terms:GLOSSARY.slice(0,6)},{t:UI.glossVal,terms:[GLOSSARY[3],GLOSSARY[6],GLOSSARY[10],GLOSSARY[13]]},{t:UI.glossMkt,terms:[GLOSSARY[5],GLOSSARY[9],GLOSSARY[11],GLOSSARY[12]]}];
+  return cats.map(cat=>`<div class="sl">${T(cat.t)}</div><div class="glossgrid">${cat.terms.map(g=>`<div class="glossterm"><div class="glossname">${T(g.n)}<span class="glossen">${g.en}</span></div><div class="glossdef">${T(g.def)}</div><div class="glossex">${T(g.ex)}</div></div>`).join('')}</div>`).join('');
+}
+
+function buildCharts(){
+  const cos=COS[SEC];if(!cos)return;
+  const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},autoSkip:false}}}};
+  const e1=$('#ch1');
+  if(e1){
+    const ds=LV>=1?[{label:'rev',data:cos.map(c=>c.rev),backgroundColor:cos.map(c=>c.c+'99'),borderColor:cos.map(c=>c.c),borderWidth:1},{label:'ni',data:cos.map(c=>Math.max(c.ni,0)),backgroundColor:cos.map(c=>c.c+'44'),borderColor:cos.map(c=>c.c),borderWidth:1,borderDash:[4,3]}]:[{label:'rev',data:cos.map(c=>c.rev),backgroundColor:cos.map(c=>c.c+'BB'),borderColor:cos.map(c=>c.c),borderWidth:1}];
+    chartInst.push(new Chart(e1,{type:'bar',data:{labels:cos.map(c=>T(c.n)),datasets:ds},options:{...base,scales:{...base.scales,y:{ticks:{callback:v=>'$'+v}}}}}));
+  }
+  if(LV>=1){const e2=$('#ch2');if(e2)chartInst.push(new Chart(e2,{type:'bar',data:{labels:cos.map(c=>T(c.n)),datasets:[{label:'mg',data:cos.map(c=>{const L=LIVE[c.t]||{};return L.mg!=null?Math.round(L.mg):c.mg;}),backgroundColor:cos.map(c=>{const m=(LIVE[c.t]||{}).mg??c.mg;return m>20?'#1D9E7599':m<5?'#E24B4A99':'#EF9F2799';}),borderColor:cos.map(c=>{const m=(LIVE[c.t]||{}).mg??c.mg;return m>20?'#1D9E75':m<5?'#E24B4A':'#EF9F27';}),borderWidth:1}]},options:{...base,scales:{...base.scales,y:{max:65,ticks:{callback:v=>v+'%'}}}}}));}
+}
+
+async function fhGet(path){
+  const sep=path.includes('?')?'&':'?';
+  const r=await fetch(`${FH}${path}${sep}token=${KEY}`);
+  if(!r.ok)throw new Error(r.status);
+  return r.json();
+}
+
+async function loadOne(t){
+  const [q,p,m]=await Promise.all([
+    fhGet(`/quote?symbol=${t}`),
+    fhGet(`/stock/profile2?symbol=${t}`).catch(()=>({})),
+    fhGet(`/stock/metric?symbol=${t}&metric=all`).catch(()=>({})),
+  ]);
+  const met=(m&&m.metric)||{};
+  LIVE[t]={
+    price:q&&q.c?q.c:null,dp:q&&q.dp!=null?q.dp:null,
+    name:p&&p.name?p.name:null,logo:p&&p.logo?p.logo:null,cap:p&&p.marketCapitalization?p.marketCapitalization:null,
+    pe:met.peTTM!=null?met.peTTM:null,mg:met.netProfitMarginTTM!=null?met.netProfitMarginTTM:null,rg:met.revenueGrowthTTMYoy!=null?met.revenueGrowthTTMYoy:null,
+  };
+}
+
+async function loadList(tickers,tag){
+  if(!KEY||!tickers.length)return;
+  setStatus('loading',T(UI.statusLoading));
+  let ok=0;
+  for(const t of tickers){
+    try{await loadOne(t);ok++;if(SEC===tag)render();}
+    catch(e){if(String(e.message)==='429'){await new Promise(r=>setTimeout(r,4000));}}
+  }
+  const tm=new Date().toLocaleTimeString(LANG==='zh'?'zh-CN':'en-US',{hour:'2-digit',minute:'2-digit'});
+  setStatus(ok>0?'on':'err',ok>0?(LANG==='zh'?`实时数据已更新 · ${tm} · ${ok}/${tickers.length}只`:`Live · updated ${tm} · ${ok}/${tickers.length}`):(LANG==='zh'?'加载失败，检查 API Key':'Load failed — check API key'));
+}
+
+function guessImpact(title){
+  const t=(title||'').toLowerCase();
+  if(/(beat|surge|record|jump|soar|rally|rise|gain|upgrade)/.test(t))return{l:UI.impactPos,c:'up'};
+  if(/(miss|fall|drop|loss|decline|plunge|slump|cut|downgrade|sink)/.test(t))return{l:UI.impactNeg,c:'dn'};
+  if(/(acqui|merger|deal|partner|stake)/.test(t))return{l:UI.impactDeal,c:'neu'};
+  if(/(regul|antitrust|fine|lawsuit|probe|invest)/.test(t))return{l:UI.impactReg,c:'dn'};
+  return{l:UI.impactNeu,c:'neu'};
+}
+
+async function loadNews(sec){
+  const area=$('#newsArea');if(!area||!KEY)return;
+  const c=COS[sec][0];
+  const to=new Date(),from=new Date(Date.now()-7*864e5),fmt=d=>d.toISOString().slice(0,10);
+  try{
+    const news=await fhGet(`/company-news?symbol=${c.t}&from=${fmt(from)}&to=${fmt(to)}`);
+    const items=(news||[]).slice(0,4);
+    if(!items.length){area.innerHTML=`<div class="newsinfo">${LANG==='zh'?'近一周暂无相关新闻':'No recent news this week'}</div>`;return;}
+    area.innerHTML=items.map(it=>{
+      const im=guessImpact(it.headline);
+      const tm=it.datetime?new Date(it.datetime*1000).toLocaleDateString(LANG==='zh'?'zh-CN':'en-US',{month:'numeric',day:'numeric'}):'';
+      const exp=LANG==='zh'
+        ?`标题语义初判为<strong>${T(im.l)}</strong>（需点开读全文核实）。${im.c==='up'?'此类消息通常对股价情绪偏正面。':im.c==='dn'?'此类消息可能给股价带来压力。':'中性事件，需结合基本面判断。'}`
+        :`Headline reads as <strong>${T(im.l)}</strong> (open to verify). ${im.c==='up'?'Such news is usually positive for sentiment.':im.c==='dn'?'Such news may pressure the stock.':'Neutral — judge with fundamentals.'}`;
+      return `<div class="newscard"><div class="newshead"><div class="newstitle"><a href="${it.url}" target="_blank" rel="noopener">${it.headline}</a></div><span class="badge ${im.c}" style="flex-shrink:0">${T(im.l)}</span></div>
+      <div style="font-size:10px;color:var(--tx3)">${it.source||''}${tm?' · '+tm:''}</div><div class="newsimpact">${exp}</div></div>`;
+    }).join('');
+  }catch(e){area.innerHTML=`<div class="newsinfo">${LANG==='zh'?'新闻加载失败':'News failed'} (${e.message})</div>`;}
+}
+
+async function doSearch(){
+  const box=$('#searchResults'),q=$('#searchInput').value.trim();
+  if(!q)return;
+  if(!KEY){box.innerHTML=`<div class="empty">${T(UI.needKey)}</div>`;return;}
+  box.innerHTML=`<div class="empty">...</div>`;
+  try{
+    const r=await fhGet(`/search?q=${encodeURIComponent(q)}`);
+    const res=(r.result||[]).filter(x=>x.type==='Common Stock'&&!x.symbol.includes('.')).slice(0,8);
+    if(!res.length){box.innerHTML=`<div class="empty">${T(UI.noResult)}</div>`;return;}
+    box.innerHTML=`<div class="cogrid">${res.map(x=>stockCard({t:x.symbol,n:{zh:x.description,en:x.description}})).join('')}</div>`;
+    for(const x of res){try{await loadOne(x.symbol);if(SEC==='search')box.innerHTML=`<div class="cogrid">${res.map(y=>stockCard({t:y.symbol,n:{zh:y.description,en:y.description}})).join('')}</div>`;}catch(e){}}
+  }catch(e){box.innerHTML=`<div class="empty">${LANG==='zh'?'搜索失败':'Search failed'} (${e.message})</div>`;}
+}
+
+function setStatus(cls,txt){const d=$('#ldot');d.className='ldot'+(cls==='on'?' on':cls==='err'?' err':'');$('#stxt').textContent=txt;}
+
+function loadTabLogos(){
+  if(!KEY)return;
+  document.querySelectorAll('.stab-logo').forEach(async img=>{
+    try{const p=await fhGet(`/stock/profile2?symbol=${img.dataset.sym}`);if(p&&p.logo)img.src=p.logo;}catch(e){}
+  });
+}
+
+$('#langBtn').onclick=()=>setLang(LANG==='zh'?'en':'zh');
+$('#refreshBtn').onclick=()=>{if(COS[SEC]&&KEY)loadList(COS[SEC].map(c=>c.t),SEC);else if(SEC==='watch'&&KEY)loadList(WATCH,'watch');};
+document.querySelectorAll('.lvbtn').forEach((b,i)=>b.onclick=()=>setLv(i));
+$('#keySave').onclick=()=>{
+  const v=$('#keyInput').value.trim();
+  if(!v||v===T(UI.keySaved)){if(confirm(LANG==='zh'?'打开 Finnhub 免费注册页面？':'Open Finnhub free signup?'))window.open('https://finnhub.io/register','_blank');return;}
+  KEY=v;localStorage.setItem('fh_key',v);$('#keyInput').value=T(UI.keySaved);
+  setStatus('on',T(UI.liveOn));buildTabs();loadTabLogos();
+  if(COS[SEC])loadList(COS[SEC].map(c=>c.t),SEC);
+};
+$('#keyInput').onfocus=function(){if(this.value===T(UI.keySaved))this.value='';};
+document.addEventListener('click',e=>{if(e.target.id==='searchBtn')doSearch();});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='searchInput')doSearch();});
+window.setSector=setSector;
+
+applyStaticUI();buildTabs();setLv(0);
+if(KEY){setStatus('on',T(UI.liveOn));loadTabLogos();}
+else setStatus('',T(UI.demoMode));
+</script>
+</body>
+</html>
