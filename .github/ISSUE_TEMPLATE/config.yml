@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "💬 Question · 提问"
+    url: https://github.com/BenjaminJason/market-earnings-dashboard/discussions
+    about: "For general questions, open a Discussion. · 一般性问题请在 Discussions 提问。"
