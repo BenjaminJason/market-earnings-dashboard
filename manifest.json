@@ -1,0 +1,19 @@
+{
+  "name": "Market Earnings Dashboard",
+  "short_name": "Earnings",
+  "description": "Bilingual real-time US-stock earnings dashboard with adaptive learning.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1f1e1c",
+  "theme_color": "#1f1e1c",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

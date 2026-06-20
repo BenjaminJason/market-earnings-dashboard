@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>全市场财报仪表盘 · Market Earnings Dashboard</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1f1e1c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Earnings">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.47.0/iconfont/tabler-icons.min.css">
 <style>
 :root{
@@ -584,6 +591,8 @@ window.setSector=setSector;
 applyStaticUI();buildTabs();setLv(0);
 if(KEY){setStatus('on',T(UI.liveOn));loadTabLogos();}
 else setStatus('',T(UI.demoMode));
+
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 </script>
 </body>
 </html>

@@ -26,8 +26,8 @@
   实时新闻 + 自动判断利好/利空倾向。
 - **📚 Glossary** — Plain-language definitions of every financial term used, with examples.
   财务术语词典，大白话 + 举例。
-- **📱 Mobile-first & dark mode** — Responsive layout, follows your system dark mode, installable feel.
-  手机优先，自动深色模式。
+- **📱 Installable (PWA) & dark mode** — Add to your home screen and open full-screen like a native app; responsive layout follows system dark mode; works offline (shell).
+  可安装到手机桌面（PWA），全屏打开像 App；响应式 + 自动深色模式；离线也能打开界面。
 
 ---
 
@@ -69,7 +69,7 @@ Quarterly revenue, EV/EBITDA and analyst ratings are **illustrative reference va
 - [ ] Historical price mini-charts (K-line)
 - [ ] More markets (HK / A-shares / ETFs)
 - [ ] Manual light/dark theme toggle
-- [ ] PWA "add to home screen"
+- [x] PWA "add to home screen"
 
 Contributions and ideas welcome — open an issue! 欢迎提 issue 和 PR。
 
